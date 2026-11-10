@@ -1172,3 +1172,241 @@ int main() {
     if (c1 != c2) cout << "c1 не равно c2" << endl;
 }
 */
+/* 7_1
+#include <iostream>
+
+using namespace std;
+
+class Integer {
+private:
+    int value;
+
+public:
+    Integer(int v = 0) : value(v) {}
+    Integer(Integer& other) : value(other.value) {}
+
+    Integer operator+(Integer other) { return Integer(value + other.value); }
+    Integer operator-(Integer other) { return Integer(value - other.value); }
+    Integer operator*(Integer other) { return Integer(value * other.value); }
+    Integer operator/(Integer other) {
+        if (other.value != 0) return Integer(value / other.value);
+        return Integer(0);
+    }
+
+    Integer operator++() {
+        value++;
+        return *this;
+    }
+    Integer operator++(int) {
+        Integer temp = *this;
+        value++;
+        return temp;
+    }
+    Integer operator--() {
+        value--;
+        return *this;
+    }
+    Integer operator--(int) {
+        Integer temp = *this;
+        value--;
+        return temp;
+    }
+    operator int() { return value; }
+
+    void Print() {
+        cout << value << endl;
+    }
+};
+int main() {
+    Integer a(10);
+    a.Print();
+
+    ++a;
+    a.Print();
+
+    a++;
+    a.Print();
+
+    --a;
+    a.Print();
+
+    a--;
+    a.Print();
+}
+*/
+/* 7_2
+#include <iostream>
+
+using namespace std;
+
+class String {
+private:
+    char* data;
+    int length;
+
+public:
+    String() : length(0) {
+        data = new char[1];
+        data[0] = '\0';
+    }
+    String(char* str) {
+        int len = 0;
+        while (str[len] != '\0') len++;
+        length = len;
+        data = new char[length + 1];
+        for (int i = 0; i < length; i++) data[i] = str[i];
+        data[length] = '\0';
+    }
+    String(String& other) : length(other.length) {
+        data = new char[length + 1];
+        for (int i = 0; i < length; i++) data[i] = other.data[i];
+        data[length] = '\0';
+    }
+    ~String() {
+        delete[] data;
+    }
+    char operator[](int index) {
+        if (index >= 0 && index < length) return data[index];
+        return '\0';
+    }
+
+    bool operator==(String other) {
+        if (length != other.length) return false;
+        for (int i = 0; i < length; i++) {
+            if (data[i] != other.data[i]) return false;
+        }
+        return true;
+    }
+    bool operator!=(String other) { return !(*this == other); }
+    bool operator<(String other) {
+        int minLen = length < other.length ? length : other.length;
+        for (int i = 0; i < minLen; i++) {
+            if (data[i] < other.data[i]) return true;
+            if (data[i] > other.data[i]) return false;
+        }
+        return length < other.length;
+    }
+    bool operator>(String other) { return other < *this; }
+    void Print() {
+        cout << data << endl;
+    }
+};
+
+int main() {
+    char str1[] = "Apple";
+    char str2[] = "Banana";
+    char str3[] = "Apple";
+
+    String s1(str1);
+    String s2(str2);
+    String s3(str3);
+
+    s1.Print();
+    s2.Print();
+
+    if (s1 == s3) cout << "s1 == s3" << endl;
+    if (s1 != s2) cout << "s1 != s2" << endl;
+    if (s1 < s2) cout << "s1 < s2" << endl;
+}
+*/
+/* 7_3
+#include <iostream>
+
+using namespace std;
+
+struct Result {
+    bool exists;
+    double x;
+
+    Result() : exists(false), x(0) {}
+    Result(double val) : exists(true), x(val) {}
+
+    void Print() {
+        if (exists) cout << x << endl;
+        else cout << "No root" << endl;
+    }
+};
+class Quadratic {
+private:
+    double a, b, c;
+    double NewtonSqrt(double n) {
+        if (n <= 0) return 0;
+        double guess = n / 2;
+        if (guess == 0) guess = 1;
+        for (int i = 0; i < 20; i++) {
+            guess = (guess + n / guess) / 2;
+        }
+        return guess;
+    }
+public:
+    Quadratic(double aVal = 1, double bVal = 0, double cVal = 0)
+        : a(aVal), b(bVal), c(cVal) {
+    }
+
+    Result operator()(int rootIndex) {
+        double D = b * b - 4 * a * c;
+
+        if (rootIndex == 1) {
+            if (D < 0) return Result();
+            return Result((-b + NewtonSqrt(D)) / (2 * a));
+        }
+        else if (rootIndex == 2) {
+            if (D < 0) return Result();
+            return Result((-b - NewtonSqrt(D)) / (2 * a));
+        }
+
+        return Result();
+    }
+};
+int main() {
+    Quadratic eq1(1, -3, 2);
+
+    Result r1 = eq1(1);
+    r1.Print();
+
+    Result r2 = eq1(2);
+    r2.Print();
+
+    Quadratic eq2(1, 0, 1);
+    Result r3 = eq2(1);
+    r3.Print();
+}
+*/
+/* 7_4
+#include <iostream>
+
+using namespace std;
+
+class Fraction {
+private:
+    int numerator;
+    int denominator;
+
+public:
+    Fraction(int num = 0, int den = 1) : numerator(num), denominator(den) {
+        if (denominator == 0) denominator = 1;
+    }
+
+    Fraction(Fraction& other)
+        : numerator(other.numerator), denominator(other.denominator) {
+    }
+
+    operator int() { return numerator / denominator; }
+    operator double() { return (double)numerator / denominator; }
+
+    void Print() {
+        cout << numerator << "/" << denominator << endl;
+    }
+};
+
+int main() {
+    Fraction f(7, 2);
+    f.Print();
+
+    int intVal = f;
+    double doubleVal = f;
+
+    cout << "int: " << intVal << endl;
+    cout << "double: " << doubleVal << endl;
+}
+*/
